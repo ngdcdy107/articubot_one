@@ -24,6 +24,14 @@ def generate_launch_description():
                     get_package_share_directory(package_name),'launch','rsp.launch.py'
                 )]), launch_arguments={'use_sim_time': 'true', 'use_ros2_control': 'true'}.items()
     )
+    twist_mux_params = os.path.join(get_package_share_directory(package_name),'config','twist_mux.yaml')
+    twist_mux = Node(
+            package="twist_mux",
+            executable="twist_mux",
+            parameters=[twist_mux_params, {'use_sim_time': True}],
+            remappings=[('/cmd_vel_out','/diff_cont/cmd_vel_unstamped')]
+        )
+
     gazebo_params_path = os.path.join(get_package_share_directory(package_name),'config','gazebo_params.yaml') 
     # Include the Gazebo launch file, provided by the gazebo_ros package
     gazebo = IncludeLaunchDescription(
@@ -53,6 +61,7 @@ def generate_launch_description():
     return LaunchDescription([
         rsp,
         gazebo,
+        twist_mux,
         spawn_entity,
         diff_drive_spawner,
         joint_broad_spawner
